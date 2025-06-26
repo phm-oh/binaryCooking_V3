@@ -802,70 +802,349 @@ body::before {
     }
 }
 
+/* 📱 MOBILE LAYOUT FIX - แก้ไข Responsive Design */
+
+/* 📱 Mobile Layout - 768px ลงไป */
 @media (max-width: 768px) {
     .game-main {
-        grid-template-rows: 80px 1fr 200px;
+        /* แก้ไข: เปลี่ยนจาก 1fr เป็น auto 1fr auto */
+        grid-template-rows: auto 1fr 200px;
+        height: calc(100vh - 65px);
+        min-height: 0;
     }
     
+    .cooking-serving-area {
+        /* แก้ไข: ใช้ horizontal split แทน vertical stack */
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* ซ้าย 50% | ขวา 50% */
+        grid-template-rows: 1fr; /* ไม่ stack แนวตั้ง */
+        gap: 15px;
+        padding: 15px 20px;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    /* ส่วนซ้าย: Recipe Info + Ingredients Checklist */
+    .left-panel {
+        grid-column: 1; /* คอลัมน์แรก */
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    /* ส่วนขวา: Cooking Tool */
+    .center-cooking-area {
+        grid-column: 2; /* คอลัมน์สอง */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        height: 100%;
+    }
+    
+    /* ปรับขนาด Recipe Info ให้เล็กลง */
+    .current-recipe-info {
+        flex-shrink: 0;
+        padding: 15px;
+        min-height: auto;
+    }
+    
+    .recipe-display {
+        gap: 10px;
+    }
+    
+    .recipe-icon-large {
+        font-size: 2.5rem;
+        width: 60px;
+        height: 60px;
+    }
+    
+    .recipe-details h3 {
+        font-size: 1.3rem;
+        margin-bottom: 5px;
+    }
+    
+    .recipe-score-large {
+        font-size: 1rem;
+    }
+    
+    /* Ingredients Checklist - ปรับให้พอดี */
+    .ingredients-checklist {
+        flex: 1;
+        min-height: 0;
+        padding: 15px;
+        max-height: none; /* ลบ max-height */
+    }
+    
+    .ingredients-checklist h4 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+    
+    .ingredient-item {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        min-height: 50px;
+    }
+    
+    .ingredient-icon-img {
+        width: 25px !important;
+        height: 25px !important;
+    }
+    
+    .ingredient-name {
+        font-size: 0.9rem;
+    }
+    
+    .ingredient-amount {
+        font-size: 0.8rem;
+    }
+    
+    /* Cooking Tool - ปรับขนาดให้เหมาะสม */
+    .cooking-tool {
+        width: 140px;
+        height: 140px;
+        font-size: 3rem;
+    }
+    
+    .tool-image {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .drop-zone-label {
+        font-size: 0.9rem;
+        padding: 8px 15px;
+        margin-top: 10px;
+    }
+    
+    /* Ingredients Menu ด้านล่าง */
     .ingredients-menu {
         min-height: 200px;
         max-height: 200px;
-        padding: 12px;
+        padding: 15px;
+        overflow: visible;
     }
     
     .menu-grid {
         grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        height: 100%;
+        align-content: start;
+    }
+    
+    .ingredient {
+        min-height: 75px;
+        min-width: auto; /* ให้ยืดได้ */
+        padding: 8px 6px;
+        flex-shrink: 0;
+    }
+    
+    .ingredient-image {
+        width: 30px;
+        height: 30px;
+        margin-bottom: 5px;
+    }
+    
+    .ingredient-label {
+        font-size: 0.7rem;
+        line-height: 1.1;
+    }
+}
+
+/* 📱 Small Mobile - 480px ลงไป */
+@media (max-width: 480px) {
+    .game-main {
+        grid-template-rows: auto 1fr 180px; /* ลดความสูง ingredients menu */
+    }
+    
+    .cooking-serving-area {
+        gap: 10px;
+        padding: 10px 15px;
+    }
+    
+    /* ส่วนซ้าย - ให้เล็กลง */
+    .current-recipe-info {
+        padding: 12px;
+    }
+    
+    .recipe-icon-large {
+        font-size: 2rem;
+        width: 50px;
+        height: 50px;
+    }
+    
+    .recipe-details h3 {
+        font-size: 1.1rem;
+    }
+    
+    .recipe-score-large {
+        font-size: 0.9rem;
+    }
+    
+    .ingredients-checklist {
+        padding: 12px;
+    }
+    
+    .ingredients-checklist h4 {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+    
+    .ingredient-item {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        min-height: 45px;
+    }
+    
+    .ingredient-icon-img {
+        width: 22px !important;
+        height: 22px !important;
+    }
+    
+    .ingredient-name {
+        font-size: 0.8rem;
+    }
+    
+    .ingredient-amount {
+        font-size: 0.75rem;
+    }
+    
+    /* ส่วนขวา - เครื่องปั่น */
+    .cooking-tool {
+        width: 120px;
+        height: 120px;
+        font-size: 2.5rem;
+    }
+    
+    .tool-image {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .drop-zone-label {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+    
+    /* Ingredients Menu */
+    .ingredients-menu {
+        min-height: 180px;
+        max-height: 180px;
+        padding: 12px;
+    }
+    
+    .menu-grid {
+        grid-template-columns: repeat(4, 1fr);
         gap: 8px;
     }
     
     .ingredient {
         min-height: 70px;
-        min-width: 80px;
-        padding: 8px 4px;
+        padding: 6px 4px;
     }
     
     .ingredient-image {
-        width: 28px;
-        height: 28px;
+        width: 26px;
+        height: 26px;
         margin-bottom: 4px;
     }
     
     .ingredient-label {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
+        line-height: 1.0;
     }
 }
 
-@media (max-width: 480px) {
-    .game-main {
-        grid-template-rows: 70px 1fr 180px;
+/* 🔄 แก้ไข Customer Bar สำหรับ Mobile */
+@media (max-width: 768px) {
+    .customer-bar {
+        padding: 10px 15px;
+        flex-direction: column;
+        gap: 10px;
+        margin: 0 15px;
     }
     
-    .ingredients-menu {
-        min-height: 180px;
-        max-height: 180px;
-        padding: 10px;
+    .customer-queue {
+        justify-content: center;
+        gap: 10px;
     }
     
-    .menu-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 6px;
+    .customer-avatar {
+        width: 45px;
+        height: 45px;
+        font-size: 1.5rem;
     }
     
-    .ingredient {
-        min-height: 65px;
-        min-width: 70px;
-        padding: 6px 3px;
+    .order-bubble {
+        min-width: 110px;
+        padding: 6px 10px;
     }
     
-    .ingredient-image {
-        width: 24px;
-        height: 24px;
-        margin-bottom: 3px;
+    .order-bubble .recipe-info h3 {
+        font-size: 0.75rem;
     }
     
-    .ingredient-label {
+    .order-bubble .recipe-score {
         font-size: 0.65rem;
-        line-height: 1.1;
+    }
+}
+
+/* 🎯 แก้ไข Header สำหรับ Mobile */
+@media (max-width: 768px) {
+    .game-header {
+        padding: 8px 15px;
+        height: 55px;
+    }
+    
+    .game-title {
+        font-size: 1.5rem;
+    }
+    
+    .game-stats {
+        gap: 10px;
+    }
+    
+    .stat-item {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+    
+    .game-main {
+        height: calc(100vh - 55px); /* ปรับตาม header ใหม่ */
+    }
+}
+
+/* 🔧 ปรับ Modal สำหรับ Mobile */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        max-width: 350px;
+        padding: 25px 20px;
+    }
+    
+    .modal h3 {
+        font-size: 1.5rem;
+    }
+    
+    .binary-input input {
+        width: 180px;
+        font-size: 1.4rem;
+        padding: 12px 20px;
+    }
+    
+    .modal-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.1rem;
     }
 }
 
