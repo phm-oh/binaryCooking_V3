@@ -7,7 +7,8 @@
 
 body {
     font-family: 'Comic Sans MS', 'Arial', sans-serif;
-    background: url('/assets/images/bg.png') no-repeat center center;
+    /* background: url('/assets/images/bg.png') no-repeat center center; */
+    background: url('https://res.cloudinary.com/dk41tl6ku/image/upload/v1750919357/bg_wjoqjc.png') no-repeat center center;
     background-size: cover;
     min-height: 100vh;
     overflow: hidden;
