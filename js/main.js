@@ -26,22 +26,26 @@ const gameAudio = {
     volume: GAME_DATA.config.sounds.volume,
     
     init() {
-        // Initialize background music
-        this.bgMusic = new Audio('assets/sounds/bg.mp3');
-        this.bgMusic.loop = true;
-        this.bgMusic.volume = this.volume.bg;
+        // Initialize background music from Cloudinary
+        if (GAME_DATA.config.sounds.urls['bg']) {
+            this.bgMusic = new Audio(GAME_DATA.config.sounds.urls['bg']);
+            this.bgMusic.loop = true;
+            this.bgMusic.volume = this.volume.bg;
+        }
         
-        // Initialize sound effects
+        // Initialize sound effects from Cloudinary
         GAME_DATA.config.sounds.files.forEach(soundName => {
-            this.sounds[soundName] = new Audio(`assets/sounds/${soundName}.mp3`);
-            if (soundName === 'blender' || soundName === 'cooking') {
-                this.sounds[soundName].volume = this.volume.cooking;
-            } else {
-                this.sounds[soundName].volume = this.volume.sfx;
+            if (GAME_DATA.config.sounds.urls[soundName]) {
+                this.sounds[soundName] = new Audio(GAME_DATA.config.sounds.urls[soundName]);
+                if (soundName === 'blender' || soundName === 'cooking') {
+                    this.sounds[soundName].volume = this.volume.cooking;
+                } else {
+                    this.sounds[soundName].volume = this.volume.sfx;
+                }
             }
         });
         
-        console.log('🎵 ระบบเสียงพร้อมใช้งาน!');
+        console.log('🎵 ระบบเสียงพร้อมใช้งาน (Cloudinary)!');
     },
     
     async playBgMusic() {
@@ -145,12 +149,12 @@ function loadCurrentRecipe() {
     const toolContent = document.getElementById('tool-content');
     
     if (category.type === 'drinks') {
-        toolImage.src = 'assets/images/blender.png';
+        toolImage.src = 'https://res.cloudinary.com/dk41tl6ku/image/upload/v1750919356/blender_fmqka8.png';
         toolImage.alt = 'เครื่องปั่น';
         toolImage.style.display = 'block';
         toolContent.style.display = 'none';
     } else {
-        toolImage.src = 'assets/images/pot.png';
+        toolImage.src = 'https://res.cloudinary.com/dk41tl6ku/image/upload/v1750919359/pot_nydf0u.png';
         toolImage.alt = 'หม้อ';
         toolImage.style.display = 'block';
         toolContent.style.display = 'none';
