@@ -1,12 +1,12 @@
-# Netlify Configuration for Binary Cooking Game
+# Netlify Configuration for Binary Cooking Game - FIXED
 [build]
-  # Build command - ติดตั้ง dependencies สำหรับ functions
-  command = "cd netlify/functions && npm install"
+  # Build command - no need to cd into functions
+  command = "npm install --prefix netlify/functions"
   
   # Publish directory
   publish = "."
   
-  # Functions directory
+  # Functions directory - CRITICAL PATH
   functions = "netlify/functions"
 
 [functions]
@@ -16,20 +16,26 @@
   # External node modules (for MongoDB)
   external_node_modules = ["mongodb"]
 
-# Environment variables (already set in UI)
-# [build.environment]
-#   MONGODB_URI = "your-mongodb-uri"
+# Environment variables (set in Netlify UI - already done ✅)
+# MONGODB_URI = your-mongodb-uri
 
-# Redirect rules (optional)
+# Redirect rules
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Headers for CORS (if needed)
+# Headers for CORS
 [[headers]]
   for = "/.netlify/functions/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Headers = "Content-Type"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS, PUT, DELETE"
+
+# Force HTTPS
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"

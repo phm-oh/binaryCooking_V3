@@ -1,13 +1,13 @@
-// Binary Cooking - API Layer for Netlify Functions
-// ไฟล์นี้จัดการการเรียก Netlify Functions เพื่อเชื่อมต่อ MongoDB Atlas
+// Binary Cooking - API Layer for Netlify Functions - FIXED
+// แก้ไข Response Format และ Error Handling
 
 class BinaryCookingAPI {
     constructor() {
-        // 🔧 Force production mode to test MongoDB
-        this.isLocal = false; // window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        this.baseUrl = '/.netlify/functions'; // Always use Netlify Functions
-        this.timeout = 10000; // 10 seconds timeout
-        console.log(`🔌 Binary Cooking API initialized (PRODUCTION mode - MongoDB)`);
+        // 🔧 ใช้ production mode เสมอ (เพื่อ test MongoDB)
+        this.isLocal = false;
+        this.baseUrl = '/.netlify/functions';
+        this.timeout = 15000; // เพิ่ม timeout เป็น 15 วินาที
+        console.log(`🔌 Binary Cooking API initialized (MongoDB mode)`);
     }
 
     // Helper method สำหรับ fetch with timeout and error handling
@@ -16,6 +16,8 @@ class BinaryCookingAPI {
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
         try {
+            console.log(`🌐 API Call: ${url}`);
+            
             const response = await fetch(url, {
                 ...options,
                 signal: controller.signal,
@@ -26,12 +28,17 @@ class BinaryCookingAPI {
             });
 
             clearTimeout(timeoutId);
+            
+            console.log(`📡 Response Status: ${response.status}`);
 
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
-            return await response.json();
+            const result = await response.json();
+            console.log('📦 API Response:', result);
+            
+            return result;
         } catch (error) {
             clearTimeout(timeoutId);
             
@@ -39,7 +46,7 @@ class BinaryCookingAPI {
                 throw new Error('Request timeout - การเชื่อมต่อล่าช้า');
             }
             
-            console.error('API Error:', error);
+            console.error('❌ API Error:', error);
             throw error;
         }
     }
@@ -71,8 +78,13 @@ class BinaryCookingAPI {
                 body: JSON.stringify(payload)
             });
 
-            console.log('✅ Score saved successfully:', result);
-            return result;
+            // 🔧 แก้ไข: ตรวจสอบ response format
+            if (result.success) {
+                console.log('✅ Score saved successfully:', result);
+                return result;
+            } else {
+                throw new Error(result.error || 'Failed to save score');
+            }
             
         } catch (error) {
             console.error('❌ Error saving score:', error);
@@ -100,8 +112,25 @@ class BinaryCookingAPI {
             const url = `${this.baseUrl}/get-leaderboard?limit=${limit}`;
             const result = await this.fetchWithTimeout(url);
 
-            console.log(`✅ Leaderboard loaded: ${result.players?.length || 0} players`);
-            return result.players || [];
+            // 🔧 แก้ไข: ตรวจสอบ response format ใหม่
+            let players = [];
+            
+            if (result.success && result.data && result.data.players) {
+                // Format ใหม่จาก get-leaderboard.js
+                players = result.data.players;
+            } else if (result.players) {
+                // Format เก่า
+                players = result.players;
+            } else if (Array.isArray(result)) {
+                // Direct array
+                players = result;
+            } else {
+                console.warn('⚠️ Unexpected response format:', result);
+                players = [];
+            }
+
+            console.log(`✅ Leaderboard loaded: ${players.length} players`);
+            return players;
             
         } catch (error) {
             console.error('❌ Error getting leaderboard:', error);
@@ -120,44 +149,16 @@ class BinaryCookingAPI {
             const url = `${this.baseUrl}/get-player-stats?playerName=${encodeURIComponent(playerName)}`;
             const result = await this.fetchWithTimeout(url);
 
-            console.log('✅ Player stats loaded:', result);
-            return result.player || null;
+            if (result.success && result.data) {
+                console.log('✅ Player stats loaded:', result.data);
+                return result.data.player || result.data;
+            } else {
+                return null;
+            }
             
         } catch (error) {
             console.error('❌ Error getting player stats:', error);
-            return null; // Return null if player not found or error
-        }
-    }
-
-    // อัพเดตสถิติผู้เล่น (เมื่อจบเกม)
-    async updatePlayerStats(playerName, gameResult) {
-        try {
-            console.log(`📈 Updating player stats: ${playerName}`);
-            
-            const payload = {
-                playerName: playerName.trim(),
-                gameResult: {
-                    score: gameResult.score,
-                    recipesCompleted: gameResult.recipesCompleted || 0,
-                    totalTime: gameResult.totalTime || 0,
-                    accuracy: gameResult.accuracy || 0,
-                    ...gameResult
-                },
-                timestamp: new Date().toISOString()
-            };
-
-            const result = await this.fetchWithTimeout(`${this.baseUrl}/update-player-stats`, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-
-            console.log('✅ Player stats updated:', result);
-            return result;
-            
-        } catch (error) {
-            console.error('❌ Error updating player stats:', error);
-            // Don't throw error for stats update failure
-            return { success: false, error: error.message };
+            return null;
         }
     }
 
@@ -172,8 +173,9 @@ class BinaryCookingAPI {
                 return true;
             }
             
-            const result = await this.fetchWithTimeout(`${this.baseUrl}/health-check`);
-            console.log('✅ API connection OK:', result);
+            // ใช้ get-leaderboard แทน health-check เพราะไม่มี health-check function
+            const result = await this.fetchWithTimeout(`${this.baseUrl}/get-leaderboard?limit=1`);
+            console.log('✅ API connection OK');
             return true;
             
         } catch (error) {
@@ -182,19 +184,16 @@ class BinaryCookingAPI {
         }
     }
 
-    // 💾 Local Storage Methods
+    // 💾 Local Storage Methods (เหมือนเดิม)
     saveScoreLocally(playerName, score, gameStats = {}) {
         try {
-            // Get existing scores
             const existingScores = JSON.parse(localStorage.getItem('binaryCookingScores') || '[]');
             
-            // Find existing player
             const existingPlayerIndex = existingScores.findIndex(p => p.playerName === playerName);
             
             let isNewRecord = false;
             
             if (existingPlayerIndex >= 0) {
-                // Update existing player
                 const existingPlayer = existingScores[existingPlayerIndex];
                 if (score > existingPlayer.bestScore) {
                     isNewRecord = true;
@@ -205,7 +204,6 @@ class BinaryCookingAPI {
                 existingPlayer.lastPlayed = new Date().toISOString();
                 existingPlayer.lastGameStats = gameStats;
             } else {
-                // New player
                 isNewRecord = true;
                 existingScores.push({
                     playerName,
@@ -218,13 +216,9 @@ class BinaryCookingAPI {
                 });
             }
             
-            // Sort by best score
             existingScores.sort((a, b) => b.bestScore - a.bestScore);
-            
-            // Save back to localStorage
             localStorage.setItem('binaryCookingScores', JSON.stringify(existingScores));
             
-            // Calculate rank
             const rank = existingScores.findIndex(p => p.playerName === playerName) + 1;
             
             console.log(`💾 Local score saved: ${playerName} = ${score} (rank: ${rank})`);
@@ -251,12 +245,10 @@ class BinaryCookingAPI {
         try {
             const scores = JSON.parse(localStorage.getItem('binaryCookingScores') || '[]');
             
-            // If no scores, return mock data
             if (scores.length === 0) {
                 return this.getMockLeaderboard(limit);
             }
             
-            // Sort and limit
             const sortedScores = scores
                 .sort((a, b) => b.bestScore - a.bestScore)
                 .slice(0, limit);
@@ -282,29 +274,6 @@ class BinaryCookingAPI {
         
         return mockPlayers.slice(0, limit);
     }
-
-    // รีเซ็ต Leaderboard (สำหรับ admin)
-    async resetLeaderboard(adminKey) {
-        if (!adminKey || adminKey !== 'reset-binary-cooking-2025') {
-            throw new Error('Unauthorized');
-        }
-        
-        try {
-            console.log('🗑️ Resetting leaderboard...');
-            
-            const result = await this.fetchWithTimeout(`${this.baseUrl}/reset-leaderboard`, {
-                method: 'POST',
-                body: JSON.stringify({ adminKey })
-            });
-
-            console.log('✅ Leaderboard reset:', result);
-            return result;
-            
-        } catch (error) {
-            console.error('❌ Error resetting leaderboard:', error);
-            throw error;
-        }
-    }
 }
 
 // สร้าง instance และ export functions
@@ -326,10 +295,6 @@ async function getPlayerStats(playerName) {
     return await api.getPlayerStats(playerName);
 }
 
-async function updatePlayerStats(playerName, gameResult) {
-    return await api.updatePlayerStats(playerName, gameResult);
-}
-
 async function checkAPIConnection() {
     return await api.checkConnection();
 }
@@ -337,7 +302,6 @@ async function checkAPIConnection() {
 // Auto-check connection on load
 document.addEventListener('DOMContentLoaded', async () => {
     if (window.location.pathname.includes('login.html') || window.location.pathname === '/') {
-        // Test connection on login page
         setTimeout(async () => {
             try {
                 const isConnected = await checkAPIConnection();
@@ -356,13 +320,12 @@ window.addEventListener('unhandledrejection', (event) => {
     if (event.reason && event.reason.message && event.reason.message.includes('API')) {
         console.error('🔥 Global API Error:', event.reason);
         
-        // Show user-friendly message
         if (typeof showToast === 'function') {
             showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง', 'error');
         }
         
-        event.preventDefault(); // Prevent console spam
+        event.preventDefault();
     }
 });
 
-console.log('🚀 Binary Cooking API Layer loaded successfully!');
+console.log('🚀 Binary Cooking API Layer loaded successfully (FIXED)!');
