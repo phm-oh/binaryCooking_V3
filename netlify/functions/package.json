@@ -1,0 +1,53 @@
+{
+  "name": "binary-cooking-netlify-functions",
+  "version": "1.0.0",
+  "description": "Netlify Functions for Binary Cooking Game - MongoDB Atlas Integration",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "netlify dev",
+    "build": "echo \"Functions build complete\"",
+    "deploy": "netlify deploy --prod"
+  },
+  "keywords": [
+    "netlify",
+    "functions",
+    "mongodb",
+    "gaming",
+    "binary-cooking",
+    "serverless"
+  ],
+  "author": "Binary Cooking Game Developer",
+  "license": "MIT",
+  "dependencies": {
+    "mongodb": "^6.0.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/binary-cooking-game.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/binary-cooking-game/issues"
+  },
+  "homepage": "https://binary-cooking-game.netlify.app",
+  "netlify": {
+    "functions": {
+      "directory": "netlify/functions",
+      "node_bundler": "esbuild"
+    }
+  },
+  "config": {
+    "mongodbUri": "mongodb+srv://Krufay:Krufay1234@cluster0.y6h8i60.mongodb.net/biantycooking",
+    "databaseName": "biantycooking",
+    "collections": {
+      "players": "players",
+      "gameStats": "gameStats"
+    }
+  }
+}

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Cooking - เกมทำอาหารเลขฐาน AAA Edition</title>
+    <link rel="stylesheet" href="/css/game.css">
+</head>
+<body class="stage-drinks">
+    <!-- Login Check Script - ต้องอยู่ก่อน body content -->
+    <script>
+        // 🔒 เช็คว่าผู้เล่น login แล้วหรือยัง
+        const playerName = localStorage.getItem('binaryCookingPlayerName');
+        if (!playerName) {
+            console.log('🚫 No player name found, redirecting to login...');
+            window.location.href = 'login.html';
+        } else {
+            console.log(`🎮 Welcome back: ${playerName}`);
+        }
+    </script>
+
+    <div class="game-container">
+        <!-- Header -->
+        <div class="game-header">
+            <h1 class="game-title">🍳 Binary Cooking</h1>
+            <div class="game-stats">
+                <div class="stat-item">
+                    <span class="stat-label">ผู้เล่น:</span>
+                    <span id="playerNameDisplay">-</span>
+                </div>
+                <div class="stat-item">
+                    คะแนน: <span id="score">0</span>
+                </div>
+                <div class="stat-item">
+                    เวลา: <span id="timer">60</span>s
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Game Area -->
+        <div class="game-main">
+            <!-- Customer Bar -->
+            <div class="customer-bar">
+                <div class="customer-queue" id="customer-queue">
+                    <!-- Dynamic customers will be loaded here -->
+                </div>
+                <div class="current-category">
+                    <div class="category-badge" id="category-badge">เครื่องดื่ม - ฐาน 2</div>
+                </div>
+            </div>
+
+            <!-- Cooking/Serving Area -->
+            <div class="cooking-serving-area">
+                <!-- Left Panel: Recipe Info + Ingredients Checklist -->
+                <div class="left-panel">
+                    <div class="current-recipe-info">
+                        <div class="recipe-display">
+                            <div class="recipe-icon-large" id="recipe-icon-large">☕</div>
+                            <div class="recipe-details">
+                                <h3 id="recipe-name-large">ลาเต้ปั่น</h3>
+                                <div class="recipe-score-large">🏆 <span id="recipe-score-large">150</span> คะแนน</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="ingredients-checklist">
+                        <h4>📝 ส่วนผสมที่ต้องการ:</h4>
+                        <div class="ingredients-list" id="ingredients-list">
+                            <!-- Dynamic ingredients will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center: Cooking Tool (Blender/Pan) -->
+                <div class="center-cooking-area">
+                    <div class="cooking-station">
+                        <div class="cooking-tool" id="cooking-tool">
+                            <img src="assets/images/blender.png" alt="เครื่องปั่น" class="tool-image" id="tool-image" 
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="tool-content" id="tool-content" style="display:none;">🥤</div>
+                            <div class="tool-particles" id="tool-particles"></div>
+                        </div>
+                        <div class="drop-zone-label">ลากส่วนผสมมาที่นี่</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ingredients Menu -->
+            <div class="ingredients-menu">
+                <div class="menu-grid" id="ingredients-grid">
+                    <!-- Dynamic ingredients with images will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Binary Input Modal -->
+    <div class="modal" id="binary-modal">
+        <div class="modal-content">
+            <h3 id="modal-title">🔢 ใส่ปริมาณเป็นเลขฐาน 2</h3>
+            <p id="modal-description">ต้องการ <span id="required-amount">5</span> หน่วยของ <span id="ingredient-name">นมสด</span></p>
+            <p>แปลงเป็นเลขฐาน <span id="base-system">2</span>:</p>
+            
+            <div class="binary-input">
+                <input type="text" id="binary-input" placeholder="เช่น 101" maxlength="8">
+                <div style="margin-top: 10px; color: #666; font-size: 0.9rem;">
+                    💡 ใส่เลขในระบบฐานที่กำหนด
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn btn-confirm" onclick="checkAnswer()">✅ ยืนยัน</button>
+                <button class="btn btn-cancel" onclick="closeModal()">❌ ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div class="modal victory-modal" id="victory-modal">
+        <div class="modal-content">
+            <div class="victory-animation" id="victory-icon">🎉</div>
+            <h3 id="victory-title">เมนูสำเร็จ!</h3>
+            <p id="victory-message">คุณทำลาเต้ปั่นสำเร็จแล้ว!</p>
+            <div style="margin: 20px 0; font-size: 1.5rem; font-weight: bold; color: #ff6b9d;">
+                +<span id="victory-score">300</span> คะแนน
+            </div>
+            <button class="btn btn-confirm" onclick="nextRecipe()" style="margin-top: 20px; font-size: 1.2rem; padding: 15px 30px;">
+                เมนูถัดไป 🍽️
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal" id="gameover-modal">
+        <div class="modal-content">
+            <h3 id="gameover-title">🏆 ยินดีด้วย!</h3>
+            <p id="gameover-message">คุณทำอาหารครบทุกเมนูแล้ว!</p>
+            <div style="margin: 20px 0; font-size: 1.3rem; font-weight: bold;">
+                คะแนนรวม: <span id="final-score">0</span>
+            </div>
+            <div style="margin: 20px 0;">
+                <p id="save-status" style="color: #666; font-size: 1rem;">
+                    💾 กำลังบันทึกคะแนน...
+                </p>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-confirm" onclick="viewScoreboard()" style="margin-top: 20px; font-size: 1.2rem; padding: 15px 30px;">
+                    🏆 ดูตารางคะแนน
+                </button>
+                <button class="btn btn-cancel" onclick="playAgain()" style="margin-top: 10px; font-size: 1rem; padding: 12px 25px; background: linear-gradient(145deg, #4CAF50, #2E7D32);">
+                    🎮 เล่นใหม่
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pause Menu Modal -->
+    <div class="modal" id="pause-modal" style="display: none;">
+        <div class="modal-content">
+            <h3>⏸️ หยุดชั่วคราว</h3>
+            <p>เกมถูกหยุดชั่วคราว</p>
+            <div class="modal-buttons">
+                <button class="btn btn-confirm" onclick="resumeGame()">
+                    ▶️ เล่นต่อ
+                </button>
+                <button class="btn btn-cancel" onclick="exitToMenu()">
+                    🏠 กลับหน้าแรก
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner">💾</div>
+            <h3>กำลังบันทึกคะแนน...</h3>
+            <p>กรุณารอสักครู่</p>
+        </div>
+    </div>
+    
+    <!-- Scripts - path ถูกต้องแล้ว -->
+    <script src="js/data.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+    
+    <!-- Initialize Game Script -->
+    <script>
+        // 🎮 แสดงชื่อผู้เล่นใน header
+        document.addEventListener('DOMContentLoaded', function() {
+            const playerNameDisplay = document.getElementById('playerNameDisplay');
+            const playerName = localStorage.getItem('binaryCookingPlayerName');
+            
+            if (playerNameDisplay && playerName) {
+                playerNameDisplay.textContent = playerName;
+                playerNameDisplay.style.color = '#FFD700';
+                playerNameDisplay.style.fontWeight = 'bold';
+                playerNameDisplay.style.textShadow = '0 1px 2px rgba(0,0,0,0.3)';
+            }
+        });
+
+        // 🔄 Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // ESC = Pause game
+            if (e.key === 'Escape' && gameState.gameRunning) {
+                pauseGame();
+            }
+            
+            // F5 = Refresh (prevent during game)
+            if (e.key === 'F5' && gameState.gameRunning) {
+                e.preventDefault();
+                showToast('❌ ไม่สามารถ refresh ขณะเล่นเกมได้', 'error');
+            }
+        });
+
+        // 🔄 Handle page visibility (pause when tab is hidden)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && gameState.gameRunning) {
+                pauseGame();
+            }
+        });
+
+        // 🚫 Prevent context menu during game
+        document.addEventListener('contextmenu', function(e) {
+            if (gameState.gameRunning) {
+                e.preventDefault();
+            }
+        });
+
+        // Pause Game Function
+        function pauseGame() {
+            if (!gameState.gameRunning) return;
+            
+            gameState.gamePaused = true;
+            gameAudio.stopBgMusic();
+            document.getElementById('pause-modal').classList.add('show');
+            
+            console.log('⏸️ Game paused');
+        }
+
+        // Resume Game Function
+        function resumeGame() {
+            if (!gameState.gamePaused) return;
+            
+            gameState.gamePaused = false;
+            gameAudio.playBgMusic();
+            document.getElementById('pause-modal').classList.remove('show');
+            
+            console.log('▶️ Game resumed');
+        }
+
+        // Exit to Menu Function
+        function exitToMenu() {
+            if (confirm('คุณแน่ใจหรือไม่ที่จะออกจากเกม? ความคืบหน้าจะหายไป')) {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // View Scoreboard Function
+        function viewScoreboard() {
+            window.location.href = 'scoreboard.html';
+        }
+
+        // Play Again Function
+        function playAgain() {
+            location.reload();
+        }
+    </script>
+
+    <!-- CSS for Loading Overlay -->
+    <style>
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading-spinner {
+            font-size: 4rem;
+            animation: spin 2s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loading-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .loading-content p {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .stat-label {
+            margin-right: 5px;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>

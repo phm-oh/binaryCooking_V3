@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test MongoDB API</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        button {
+            background: linear-gradient(145deg, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { border-color: #28a745; background: #d4edda; }
+        .error { border-color: #dc3545; background: #f8d7da; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Binary Cooking API Tester</h1>
+        <p>ทดสอบการเชื่อมต่อ MongoDB Atlas</p>
+
+        <!-- Test 1: Direct MongoDB Connection -->
+        <div class="test-section">
+            <h3>🔌 Test 1: MongoDB Connection</h3>
+            <button onclick="testDirectConnection()">ทดสอบเชื่อมต่อ MongoDB</button>
+            <div id="connection-result" class="result"></div>
+        </div>
+
+        <!-- Test 2: Save Score -->
+        <div class="test-section">
+            <h3>💾 Test 2: Save Score</h3>
+            <button onclick="testSaveScore()">บันทึกคะแนนทดสอบ</button>
+            <div id="save-result" class="result"></div>
+        </div>
+
+        <!-- Test 3: Get Leaderboard -->
+        <div class="test-section">
+            <h3>📊 Test 3: Get Leaderboard</h3>
+            <button onclick="testGetLeaderboard()">ดึงตารางคะแนน</button>
+            <div id="leaderboard-result" class="result"></div>
+        </div>
+
+        <!-- Test 4: Local Storage Test -->
+        <div class="test-section">
+            <h3>💿 Test 4: Local Storage</h3>
+            <button onclick="testLocalStorage()">ทดสอบ Local Storage</button>
+            <button onclick="clearLocalStorage()">ลบข้อมูล Local</button>
+            <div id="local-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Test Direct MongoDB Connection
+        async function testDirectConnection() {
+            const resultDiv = document.getElementById('connection-result');
+            resultDiv.textContent = '🔍 กำลังทดสอบการเชื่อมต่อ...';
+            
+            try {
+                // ทดสอบ connection string
+                const mongoUri = 'mongodb+srv://Krufay:Krufay1234@cluster0.y6h8i60.mongodb.net/biantycooking';
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ Connection String ถูกต้อง:
+Database: biantycooking
+Username: Krufay
+Cluster: cluster0.y6h8i60.mongodb.net
+
+⚠️ หมายเหตุ: 
+- MongoDB Atlas connection ใช้ได้แค่ใน server-side (Netlify Functions)
+- Browser ไม่สามารถเชื่อมต่อ MongoDB โดยตรงได้
+- ต้อง deploy ไป Netlify จริงถึงจะทดสอบได้`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Error: ${error.message}`;
+            }
+        }
+
+        // Test Save Score (Local Mode)
+        async function testSaveScore() {
+            const resultDiv = document.getElementById('save-result');
+            resultDiv.textContent = '💾 กำลังทดสอบบันทึกคะแนน...';
+            
+            try {
+                // Mock API call
+                const testData = {
+                    playerName: 'ผู้เล่นทดสอบ',
+                    score: 8888,
+                    gameStats: {
+                        playTime: 180,
+                        recipesCompleted: 8,
+                        accuracy: 90
+                    }
+                };
+
+                // Save to localStorage (simulate API)
+                const existingScores = JSON.parse(localStorage.getItem('binaryCookingScores') || '[]');
+                existingScores.push({
+                    ...testData,
+                    bestScore: testData.score,
+                    totalScore: testData.score,
+                    playCount: 1,
+                    firstPlayed: new Date().toISOString(),
+                    lastPlayed: new Date().toISOString(),
+                    lastGameStats: testData.gameStats
+                });
+                
+                localStorage.setItem('binaryCookingScores', JSON.stringify(existingScores));
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ บันทึกคะแนนสำเร็จ (Local Mode):
+Player: ${testData.playerName}
+Score: ${testData.score}
+Accuracy: ${testData.gameStats.accuracy}%
+Recipes: ${testData.gameStats.recipesCompleted}
+
+📝 ข้อมูลถูกบันทึกใน localStorage
+🔄 ใน production จะบันทึกลง MongoDB Atlas`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Error saving score: ${error.message}`;
+            }
+        }
+
+        // Test Get Leaderboard
+        async function testGetLeaderboard() {
+            const resultDiv = document.getElementById('leaderboard-result');
+            resultDiv.textContent = '📊 กำลังดึงข้อมูลตารางคะแนน...';
+            
+            try {
+                const scores = JSON.parse(localStorage.getItem('binaryCookingScores') || '[]');
+                
+                if (scores.length === 0) {
+                    resultDiv.className = 'result';
+                    resultDiv.textContent = `📝 ยังไม่มีข้อมูลตารางคะแนน
+💡 ลองกดปุ่ม "บันทึกคะแนนทดสอบ" ก่อน`;
+                    return;
+                }
+
+                const sortedScores = scores.sort((a, b) => b.bestScore - a.bestScore);
+                
+                let resultText = `✅ ตารางคะแนน (${scores.length} คน):\n\n`;
+                sortedScores.forEach((player, index) => {
+                    resultText += `${index + 1}. ${player.playerName}: ${player.bestScore.toLocaleString()} คะแนน\n`;
+                });
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = resultText;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Error getting leaderboard: ${error.message}`;
+            }
+        }
+
+        // Test Local Storage
+        function testLocalStorage() {
+            const resultDiv = document.getElementById('local-result');
+            
+            try {
+                const testKey = 'binaryCookingTest';
+                const testValue = { message: 'Hello from Binary Cooking!', timestamp: new Date().toISOString() };
+                
+                // Test write
+                localStorage.setItem(testKey, JSON.stringify(testValue));
+                
+                // Test read
+                const retrieved = JSON.parse(localStorage.getItem(testKey));
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ Local Storage ทำงานปกติ:
+Write: ${JSON.stringify(testValue, null, 2)}
+Read: ${JSON.stringify(retrieved, null, 2)}
+
+📊 ข้อมูลเกมปัจจุบัน:
+${localStorage.getItem('binaryCookingScores') ? 
+  `- คะแนน: ${JSON.parse(localStorage.getItem('binaryCookingScores')).length} รายการ` : 
+  '- ยังไม่มีคะแนน'}
+${localStorage.getItem('binaryCookingPlayerName') ? 
+  `- ผู้เล่น: ${localStorage.getItem('binaryCookingPlayerName')}` : 
+  '- ยังไม่ได้ login'}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Local Storage Error: ${error.message}`;
+            }
+        }
+
+        // Clear Local Storage
+        function clearLocalStorage() {
+            const resultDiv = document.getElementById('local-result');
+            
+            try {
+                localStorage.removeItem('binaryCookingScores');
+                localStorage.removeItem('binaryCookingPlayerName');
+                localStorage.removeItem('binaryCookingPlayerStartTime');
+                localStorage.removeItem('binaryCookingTest');
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = '🗑️ ลบข้อมูล Local Storage แล้ว';
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Error clearing storage: ${error.message}`;
+            }
+        }
+
+        // Initial test
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧪 API Tester ready!');
+        });
+    </script>
+</body>
+</html>

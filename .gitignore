@@ -1,0 +1,49 @@
+# Binary Cooking - Files to ignore in Git
+
+# Large asset files (too big for GitHub)
+assets/sounds/*.mp3
+assets/sounds/*.wav
+assets/sounds/*.ogg
+assets/images/*.png
+assets/images/*.jpg
+assets/images/*.jpeg
+assets/videos/*
+
+# Node modules
+node_modules/
+netlify/functions/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Build outputs
+dist/
+build/
+.netlify/
+
+# Cache
+.cache/
+.parcel-cache/

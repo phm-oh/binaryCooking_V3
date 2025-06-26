@@ -1,0 +1,1007 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Comic Sans MS', 'Arial', sans-serif;
+    background: url('/assets/images/bg.png') no-repeat center center;
+    background-size: cover;
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+/* เพิ่ม overlay เบาๆ เพื่อให้เนื้อหาชัดขึ้น */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Game Container */
+.game-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+}
+
+/* Header */
+.game-header {
+    background: linear-gradient(145deg, #FF6B9D, #FF1493);
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border-bottom: 3px solid #FF1493;
+    height: 65px;
+    backdrop-filter: blur(10px);
+}
+
+.game-title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #FFFFFF;
+    text-shadow: 
+        3px 3px 0px #FF1493, 
+        -1px -1px 0px #FF1493, 
+        1px -1px 0px #FF1493, 
+        -1px 1px 0px #FF1493,
+        0 0 10px rgba(255, 255, 255, 0.5);
+    letter-spacing: 2px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.game-stats {
+    display: flex;
+    gap: 15px;
+}
+
+.stat-item {
+    background: rgba(255, 255, 255, 0.95);
+    border: 3px solid #FF1493;
+    border-radius: 25px;
+    padding: 8px 16px;
+    color: #FF1493;
+    font-weight: 900;
+    font-size: 1rem;
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.2),
+        inset 0 1px 3px rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+/* Main Game Area - แก้ไขการจัด layout */
+.game-main {
+    flex: 1;
+    display: grid;
+    grid-template-rows: 100px 1fr 250px; /* เพิ่มความสูงของ ingredients menu */
+    gap: 0;
+    padding: 0;
+    height: calc(100vh - 65px);
+    overflow: hidden;
+    min-height: 0; /* สำคัญ! ป้องกัน grid overflow */
+}
+
+/* Customer Bar */
+.customer-bar {
+    background: linear-gradient(145deg, rgba(255, 228, 181, 0.95), rgba(255, 218, 185, 0.95));
+    border: 2px solid rgba(222, 184, 135, 0.8);
+    border-radius: 0 0 20px 20px;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(15px);
+    margin: 0 20px;
+    z-index: 10;
+}
+
+.customer-queue {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.customer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.customer.active {
+    transform: scale(1.05);
+}
+
+.customer-avatar {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #FFFFFF, #F8F9FA);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    border: 3px solid #FF6B9D;
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.3),
+        inset 0 1px 3px rgba(255, 255, 255, 0.7);
+    animation: bounce 2s ease-in-out infinite;
+}
+
+.customer.waiting .customer-avatar {
+    opacity: 0.6;
+    animation: none;
+}
+
+.order-bubble {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.98);
+    border: 2px solid #FF6B9D;
+    border-radius: 15px;
+    padding: 8px 12px;
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.3),
+        inset 0 1px 2px rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 130px;
+    z-index: 15;
+    backdrop-filter: blur(10px);
+}
+
+.order-bubble .recipe-icon {
+    font-size: 1.4rem;
+}
+
+.order-bubble .recipe-info h3 {
+    color: #333;
+    font-size: 0.8rem;
+    margin: 0;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.order-bubble .recipe-score {
+    color: #FF6B9D;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.current-category {
+    display: flex;
+    align-items: center;
+}
+
+.category-badge {
+    background: linear-gradient(145deg, #4CAF50, #2E7D32);
+    color: #FFFFFF;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.3),
+        inset 0 1px 3px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Counter Area */
+.cooking-serving-area {
+    background: transparent;
+    border: none;
+    padding: 20px 40px;
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 40px;
+    align-items: start;
+    overflow: visible;
+    position: relative;
+    z-index: 5;
+    height: 100%;
+    min-height: 0; /* สำคัญ! */
+}
+
+/* Left Panel */
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    min-height: 0; /* สำคัญ! */
+}
+
+.current-recipe-info {
+    background: rgba(255, 255, 255, 0.95);
+    border: 3px solid #FF6B9D;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.3),
+        inset 0 1px 3px rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(15px);
+    flex-shrink: 0; /* ไม่ให้ย่อ */
+}
+
+.recipe-display {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.recipe-icon-large {
+    font-size: 4rem;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(145deg, #FFF8DC, #FFEB3B);
+    border: 3px solid #FFD700;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+}
+
+.recipe-details h3 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 8px;
+    font-weight: 800;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.recipe-score-large {
+    font-size: 1.3rem;
+    color: #FF6B9D;
+    font-weight: 700;
+}
+
+/* Center Cooking Area */
+.center-cooking-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    height: 100%;
+    padding: 40px 0;
+    min-height: 0; /* สำคัญ! */
+}
+
+.cooking-station {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Cooking Tool */
+.cooking-tool {
+    width: 220px;
+    height: 220px;
+    background: linear-gradient(145deg, #FFFFFF, #F8F9FA, #F0F0F0);
+    border-radius: 25px;
+    border: 5px solid #FF6B9D;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 12px 35px rgba(0, 0, 0, 0.4),
+        inset 0 3px 8px rgba(255, 255, 255, 0.7),
+        inset 0 -3px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    padding: 5px;
+}
+
+.tool-image {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    transition: all 0.3s ease;
+}
+
+.cooking-tool:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        0 15px 45px rgba(0, 0, 0, 0.5),
+        inset 0 3px 8px rgba(255, 255, 255, 0.8);
+}
+
+.cooking-tool.dragover {
+    background: linear-gradient(145deg, #FFF8DC, #FFEB3B, #FFD700);
+    border-color: #FFD700;
+    transform: scale(1.1);
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.9);
+}
+
+.tool-content {
+    position: relative;
+    z-index: 2;
+}
+
+.tool-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.drop-zone-label {
+    font-size: 1.1rem;
+    color: #666;
+    font-weight: 700;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 15px;
+    border: 2px solid rgba(255, 107, 157, 0.3);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+/* Ingredients Checklist */
+.ingredients-checklist {
+    background: rgba(255, 255, 255, 0.98);
+    border: 3px solid rgba(139, 69, 19, 0.6);
+    border-radius: 20px;
+    padding: 25px;
+    max-height: 350px;
+    overflow-y: auto;
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.4),
+        inset 0 1px 4px rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(15px);
+    flex: 1;
+    min-height: 0; /* สำคัญ! */
+}
+
+.ingredients-checklist h4 {
+    color: #8B4513;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    font-weight: 800;
+    text-shadow: 
+        1px 1px 0 rgba(255, 255, 255, 0.8),
+        2px 2px 4px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.ingredients-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ingredient-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: linear-gradient(145deg, #F8F9FA, #FFFFFF);
+    border: 2px solid #87CEEB;
+    border-radius: 15px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-height: 65px;
+}
+
+.ingredient-item:hover {
+    background: linear-gradient(145deg, #E6F3FF, #F0F8FF);
+    transform: translateX(5px) scale(1.02);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.ingredient-item.completed {
+    background: linear-gradient(145deg, #E8F5E8, #F0FFF0);
+    border-color: #4CAF50;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+}
+
+.ingredient-icon {
+    font-size: 2rem;
+    min-width: 40px;
+    flex-shrink: 0;
+}
+
+.ingredient-icon-img {
+    width: 30px !important;
+    height: 30px !important;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 5px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.ingredient-icon-emoji {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.ingredient-name {
+    color: #333;
+    font-weight: 700;
+    flex: 1;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+}
+
+.ingredient-amount {
+    color: #666;
+    font-size: 1rem;
+    font-weight: 600;
+    min-width: 60px;
+    text-align: center;
+}
+
+.ingredient-status {
+    font-size: 1.5rem;
+    min-width: 30px;
+}
+
+/* 🔥 INGREDIENTS MENU - แก้ไขให้แสดงผลถูกต้อง */
+.ingredients-menu {
+    background: linear-gradient(145deg, #FFD700, #FFA500, #FF8C00);
+    border-top: 3px solid rgba(255, 140, 0, 0.8);
+    padding: 20px;
+    box-shadow: 
+        0 -6px 20px rgba(0, 0, 0, 0.4),
+        inset 0 2px 5px rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    /* สำคัญ! กำหนดความสูงขั้นต่ำ */
+    min-height: 250px;
+    max-height: 250px;
+    overflow: visible;
+    position: relative;
+    z-index: 20; /* เพิ่ม z-index */
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    height: 100%;
+    width: 100%;
+    /* แก้ไข: ลบ min-height และใช้ auto-fit แทน */
+    align-content: start;
+    justify-content: center;
+}
+
+/* 🧪 INGREDIENTS - ปรับปรุงการแสดงผล */
+.ingredient {
+    background: linear-gradient(145deg, #FFFFFF, #F8F9FA);
+    border-radius: 15px;
+    padding: 15px 10px;
+    text-align: center;
+    cursor: grab;
+    transition: all 0.3s ease;
+    border: 3px solid #FFA500;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 6px 18px rgba(255, 165, 0, 0.4),
+        inset 0 1px 3px rgba(255, 255, 255, 0.7);
+    /* สำคัญ! กำหนดขนาดขั้นต่ำ */
+    min-height: 95px;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* แก้ไข: เพิ่มการป้องกัน shrinking */
+    flex-shrink: 0;
+}
+
+.ingredient::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.3), transparent);
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+    opacity: 0;
+}
+
+.ingredient:hover::before {
+    animation: shine 0.6s ease;
+}
+
+.ingredient:hover {
+    transform: translateY(-4px) scale(1.05);
+    background: linear-gradient(145deg, #FFF8DC, #FFEB3B);
+    border-color: #FFD700;
+    box-shadow: 
+        0 8px 25px rgba(255, 215, 0, 0.6),
+        inset 0 1px 3px rgba(255, 255, 255, 0.8);
+}
+
+.ingredient:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+}
+
+.ingredient.dragging {
+    opacity: 0.8;
+    transform: rotate(3deg) scale(1.1);
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* ใช้รูปแทน emoji */
+.ingredient-image {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    flex-shrink: 0; /* ป้องกันการย่อ */
+}
+
+.ingredient-emoji {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.ingredient-label {
+    color: #333;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-shadow: 
+        1px 1px 2px rgba(255, 255, 255, 0.8),
+        0 0 4px rgba(255, 255, 255, 0.5);
+    line-height: 1.2;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: linear-gradient(145deg, #FFFFFF, #F8F9FA);
+    border: 3px solid #FF6B9D;
+    border-radius: 25px;
+    padding: 35px;
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.4),
+        inset 0 1px 3px rgba(255, 255, 255, 0.7);
+    animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal h3 {
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    font-weight: 800;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.binary-input {
+    margin: 25px 0;
+}
+
+.binary-input input {
+    padding: 15px 25px;
+    font-size: 1.6rem;
+    border: 3px solid #4CAF50;
+    border-radius: 18px;
+    width: 200px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    background: linear-gradient(145deg, #FFFFFF, #F8F9FA);
+    box-shadow: 
+        inset 0 2px 5px rgba(0, 0, 0, 0.1),
+        0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.binary-input input:focus {
+    outline: none;
+    border-color: #FFD700;
+    box-shadow: 
+        0 0 20px rgba(255, 215, 0, 0.6),
+        inset 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 25px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-confirm {
+    background: linear-gradient(145deg, #4CAF50, #2E7D32);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.5);
+}
+
+.btn-cancel {
+    background: linear-gradient(145deg, #F44336, #C62828);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-cancel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(244, 67, 54, 0.5);
+}
+
+/* Victory Modal */
+.victory-modal .modal-content {
+    background: linear-gradient(145deg, #FFD700, #FFF8DC);
+    color: #333;
+    border-color: #FFD700;
+}
+
+.victory-animation {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    animation: bounce 0.6s ease infinite;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+/* 📱 RESPONSIVE - แก้ไขส่วน mobile */
+@media (max-width: 1200px) {
+    .cooking-serving-area {
+        grid-template-columns: 380px 1fr;
+        gap: 30px;
+        padding: 15px 30px;
+    }
+    
+    .cooking-tool {
+        width: 180px;
+        height: 180px;
+    }
+    
+    .tool-image {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .menu-grid {
+        grid-template-columns: repeat(8, 1fr);
+        gap: 12px;
+    }
+    
+    .ingredient {
+        min-height: 85px;
+        min-width: 100px;
+        padding: 12px 8px;
+    }
+    
+    .ingredient-image {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+@media (max-width: 968px) {
+    .game-main {
+        grid-template-rows: 80px 1fr 220px; /* ลดความสูงส่วนผสม */
+    }
+    
+    .cooking-serving-area {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        gap: 20px;
+        padding: 15px 20px;
+        height: auto;
+    }
+    
+    .left-panel {
+        order: 1;
+        max-height: 300px;
+    }
+    
+    .center-cooking-area {
+        order: 2;
+        padding: 20px 0;
+    }
+    
+    .ingredients-menu {
+        min-height: 220px;
+        max-height: 220px;
+        padding: 15px;
+    }
+    
+    .menu-grid {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 10px;
+    }
+    
+    .ingredient {
+        min-height: 75px;
+        min-width: 90px;
+        padding: 10px 6px;
+    }
+    
+    .ingredient-image {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .ingredient-label {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-main {
+        grid-template-rows: 80px 1fr 200px;
+    }
+    
+    .ingredients-menu {
+        min-height: 200px;
+        max-height: 200px;
+        padding: 12px;
+    }
+    
+    .menu-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+    }
+    
+    .ingredient {
+        min-height: 70px;
+        min-width: 80px;
+        padding: 8px 4px;
+    }
+    
+    .ingredient-image {
+        width: 28px;
+        height: 28px;
+        margin-bottom: 4px;
+    }
+    
+    .ingredient-label {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-main {
+        grid-template-rows: 70px 1fr 180px;
+    }
+    
+    .ingredients-menu {
+        min-height: 180px;
+        max-height: 180px;
+        padding: 10px;
+    }
+    
+    .menu-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+    }
+    
+    .ingredient {
+        min-height: 65px;
+        min-width: 70px;
+        padding: 6px 3px;
+    }
+    
+    .ingredient-image {
+        width: 24px;
+        height: 24px;
+        margin-bottom: 3px;
+    }
+    
+    .ingredient-label {
+        font-size: 0.65rem;
+        line-height: 1.1;
+    }
+}
+
+/* Animations */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes blender-shake {
+    0%, 100% { transform: translateX(0) translateY(0) rotate(0deg); }
+    25% { transform: translateX(-1px) translateY(-1px) rotate(-0.5deg); }
+    50% { transform: translateX(1px) translateY(1px) rotate(0.5deg); }
+    75% { transform: translateX(-1px) translateY(1px) rotate(-0.5deg); }
+}
+
+@keyframes cooking-bubble {
+    0%, 100% { transform: scale(1) translateY(0); }
+    50% { transform: scale(1.02) translateY(-2px); }
+}
+
+@keyframes steam-rise {
+    0% { 
+        opacity: 0.8;
+        transform: translateY(0) scale(1);
+    }
+    100% { 
+        opacity: 0;
+        transform: translateY(-30px) scale(1.5);
+    }
+}
+
+.blending {
+    animation: spin 0.15s linear infinite;
+}
+
+.blending .tool-image {
+    animation: blender-shake 0.1s linear infinite;
+}
+
+.cooking {
+    animation: cooking-bubble 0.3s ease-in-out infinite;
+}
+
+.cooking .tool-image {
+    animation: pulse 0.6s ease-in-out infinite;
+}
+
+.pulse {
+    animation: pulse 0.6s ease infinite;
+}
+
+/* Steam effect for cooking */
+.cooking::after {
+    content: '💨';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    animation: steam-rise 1s ease-out infinite;
+    pointer-events: none;
+}
+
+/* Stage-specific overlays */
+.stage-drinks body::before {
+    background: rgba(135, 206, 235, 0.1);
+}
+
+.stage-food body::before {
+    background: rgba(255, 228, 181, 0.1);
+}
+
+/* Toast notification */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 15px;
+    color: white;
+    font-weight: 700;
+    z-index: 3000;
+    animation: slideIn 0.3s ease;
+    max-width: 300px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.toast.success {
+    background: linear-gradient(145deg, #4CAF50, #2E7D32);
+}
+
+.toast.error {
+    background: linear-gradient(145deg, #F44336, #C62828);
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+/* Particle effects */
+.particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #FFD700;
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: 0 0 6px #FFD700;
+}
+
+@keyframes particleExplosion {
+    0% {
+        opacity: 1;
+        transform: scale(1) translate(0, 0);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.3) translate(var(--x), var(--y));
+    }
+}

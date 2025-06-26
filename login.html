@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Cooking - เข้าสู่เกม 🍳</title>
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <!-- Background Effects -->
+        <div class="bg-effects">
+            <div class="floating-emoji">🍳</div>
+            <div class="floating-emoji">🥤</div>
+            <div class="floating-emoji">☕</div>
+            <div class="floating-emoji">🍝</div>
+            <div class="floating-emoji">🧮</div>
+            <div class="floating-emoji">💻</div>
+        </div>
+
+        <!-- Main Login Card -->
+        <div class="login-card">
+            <!-- Game Logo -->
+            <div class="game-logo">
+                <div class="logo-icon">🍳</div>
+                <h1 class="logo-title">Binary Cooking</h1>
+                <p class="logo-subtitle">เกมทำอาหารเลขฐาน Kru Fay Edition</p>
+            </div>
+
+            <!-- Login Form -->
+            <div class="login-form">
+                <h2>🎮 เริ่มต้นการผจญภัย</h2>
+                
+                <div class="input-group">
+                    <label for="playerName">👨‍🍳 ชื่อของคุณ:</label>
+                    <input 
+                        type="text" 
+                        id="playerName" 
+                        placeholder="ใส่ชื่อเล่นของคุณ..." 
+                        maxlength="20"
+                        autocomplete="name"
+                    >
+                    <div class="input-hint">💡 ชื่อจะแสดงในตารางคะแนน</div>
+                </div>
+
+                <button class="start-game-btn" id="startGameBtn" disabled>
+                    <span class="btn-icon">🚀</span>
+                    <span class="btn-text">เริ่มเล่นเกม</span>
+                    <div class="btn-shine"></div>
+                </button>
+
+                <div class="game-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">🔢</span>
+                        <span class="feature-text">แปลงเลขฐาน 2 และ 8</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🏆</span>
+                        <span class="feature-text">แข่งขันคะแนนสูงสุด</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🎵</span>
+                        <span class="feature-text">เสียงและเอฟเฟกต์</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Info -->
+            <div class="login-footer">
+                <p>
+                    <span class="footer-icon">⭐</span>
+                    เรียนรู้เลขฐานผ่านการส่วนผสม!
+                    <span class="footer-icon">⭐</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Quick Leaderboard Preview -->
+        <div class="quick-leaderboard" id="quickLeaderboard">
+            <h3>🏆 ผู้เล่นยอดเยี่ยม</h3>
+            <div class="loading-leaderboard">
+                <div class="loading-spinner">⚡</div>
+                <p>กำลังโหลด...</p>
+            </div>
+            <div class="top-players" id="topPlayers" style="display: none;">
+                <!-- Dynamic top players will be loaded here -->
+            </div>
+            <button class="view-full-leaderboard" onclick="viewFullLeaderboard()">
+                📊 ดูตารางคะแนนเต็ม
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>

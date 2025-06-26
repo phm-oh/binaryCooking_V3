@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Cooking - ตารางคะแนน 🏆</title>
+    <link rel="stylesheet" href="css/scoreboard.css">
+</head>
+<body>
+    <div class="scoreboard-container">
+        <!-- Background Effects -->
+        <div class="bg-effects">
+            <div class="trophy-float">🏆</div>
+            <div class="trophy-float">🥇</div>
+            <div class="trophy-float">⭐</div>
+            <div class="trophy-float">👑</div>
+            <div class="trophy-float">🎯</div>
+            <div class="trophy-float">🎊</div>
+        </div>
+
+        <!-- Header -->
+        <div class="scoreboard-header">
+            <div class="header-content">
+                <h1 class="scoreboard-title">
+                    <span class="title-icon">🏆</span>
+                    ตารางคะแนน
+                    <span class="title-icon">🏆</span>
+                </h1>
+                <p class="scoreboard-subtitle">Binary Cooking - Hall of Fame</p>
+            </div>
+            
+            <!-- Stats Summary -->
+            <div class="stats-summary" id="statsSummary">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="totalPlayers">-</div>
+                        <div class="stat-label">ผู้เล่นทั้งหมด</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎮</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="totalGames">-</div>
+                        <div class="stat-label">เกมทั้งหมด</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="highestScore">-</div>
+                        <div class="stat-label">คะแนนสูงสุด</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="scoreboard-controls">
+            <div class="controls-left">
+                <div class="view-toggle">
+                    <button class="toggle-btn active" data-view="top10" id="top10Btn">
+                        🥇 Top 10
+                    </button>
+                    <button class="toggle-btn" data-view="top50" id="top50Btn">
+                        📊 Top 50
+                    </button>
+                    <button class="toggle-btn" data-view="all" id="allBtn">
+                        📋 ทั้งหมด
+                    </button>
+                </div>
+            </div>
+            
+            <div class="controls-right">
+                <div class="search-player">
+                    <input type="text" 
+                           id="searchPlayer" 
+                           placeholder="🔍 ค้นหาชื่อผู้เล่น..." 
+                           maxlength="20">
+                    <button class="search-btn" id="searchBtn">ค้นหา</button>
+                </div>
+                <button class="refresh-btn" id="refreshBtn">
+                    <span class="refresh-icon">🔄</span>
+                    รีเฟรช
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-container" id="loadingContainer">
+            <div class="loading-content">
+                <div class="loading-spinner">🏆</div>
+                <h3>กำลังโหลดตารางคะแนน...</h3>
+                <p>กรุณารอสักครู่</p>
+            </div>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="leaderboard-table-container" id="leaderboardContainer" style="display: none;">
+            <div class="table-header">
+                <div class="table-title">
+                    <span id="tableTitle">🥇 Top 10 ผู้เล่นยอดเยี่ยม</span>
+                    <span class="update-time">อัพเดต: <span id="updateTime">-</span></span>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th class="rank-col">อันดับ</th>
+                            <th class="badge-col">ตำแหน่ง</th>
+                            <th class="name-col">ชื่อผู้เล่น</th>
+                            <th class="score-col">คะแนนสูงสุด</th>
+                            <th class="games-col">จำนวนเกม</th>
+                            <th class="avg-col">คะแนนเฉลี่ย</th>
+                            <th class="time-col">เล่นล่าสุด</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <!-- Dynamic rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-content">
+                <div class="empty-icon">🎯</div>
+                <h3>ยังไม่มีข้อมูลตารางคะแนน</h3>
+                <p>เป็นคนแรกที่จะสร้างประวัติศาสตร์!</p>
+                <button class="play-now-btn" onclick="goToGame()">
+                    🎮 เล่นเกมเลย
+                </button>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div class="error-state" id="errorState" style="display: none;">
+            <div class="error-content">
+                <div class="error-icon">❌</div>
+                <h3>เกิดข้อผิดพลาด</h3>
+                <p id="errorMessage">ไม่สามารถโหลดตารางคะแนนได้</p>
+                <button class="retry-btn" onclick="loadLeaderboard()">
+                    🔄 ลองใหม่อีกครั้ง
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer Navigation -->
+        <div class="footer-nav">
+            <button class="nav-btn" onclick="goToLogin()">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">หน้าแรก</span>
+            </button>
+            <button class="nav-btn" onclick="goToGame()">
+                <span class="nav-icon">🎮</span>
+                <span class="nav-text">เล่นเกม</span>
+            </button>
+            <button class="nav-btn active">
+                <span class="nav-icon">🏆</span>
+                <span class="nav-text">ตารางคะแนน</span>
+            </button>
+        </div>
+
+        <!-- Player Detail Modal -->
+        <div class="modal" id="playerModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalPlayerName">ข้อมูลผู้เล่น</h3>
+                    <button class="modal-close" onclick="closePlayerModal()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="player-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">🏆 คะแนนสูงสุด:</span>
+                            <span class="stat-value" id="modalBestScore">-</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">🎯 อันดับ:</span>
+                            <span class="stat-value" id="modalRank">-</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">🎮 จำนวนเกม:</span>
+                            <span class="stat-value" id="modalPlayCount">-</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">📊 คะแนนเฉลี่ย:</span>
+                            <span class="stat-value" id="modalAvgScore">-</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">⏰ เล่นล่าสุด:</span>
+                            <span class="stat-value" id="modalLastPlayed">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/scoreboard.js"></script>
+</body>
+</html>
